@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ứng dụng Chat sử dụng Socket.IO</title>
+  <!-- Thêm CSS để trang trí giao diện -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    #chat-container {
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    #chat-header {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 200px;
+      background-color: #fff;
+    }
+
+    #form {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      background-color: #f4f4f4;
+    }
+
+    input, button {
+      margin-top: 5px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Thêm thư viện Socket.IO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+</head>
+<body>
+  <!-- Container bao quanh danh sách tin nhắn và biểu mẫu -->
+  <div id="chat-container">
+    <!-- Tiêu đề của khung chat -->
+    <div id="chat-header">
+      APP CHAT SOCKET.IO NHÓM 2
+    </div>
+
+    <!-- Danh sách tin nhắn -->
+    <ul id="messages"></ul>
+    
+    <!-- Biểu mẫu nhập tin nhắn -->
+    <form id="form" action="">
+      <input id="name" autocomplete="off" placeholder="Tên của bạn">
+      <input id="m" autocomplete="off" placeholder="Nhập tin nhắn của bạn">
+      <button type="submit">Gửi</button>
+    </form>
+  </div>
+
+  <!-- Đoạn mã JavaScript -->
+  <script>
+    const socket = io();
+    let currentUserName = '';
+
+    // Lắng nghe sự kiện 'user info' từ server
+    socket.on('user info', (data) => {
+      currentUserName = data.name;
+      const messages = document.getElementById('messages');
+
+      // Kiểm tra nếu người dùng chưa tham gia, thêm thông báo vào danh sách tin nhắn
+      if (!data.joined) {
+        const li = document.createElement('li');
+        li.textContent = `${data.name} đã tham gia vào cuộc trò chuyện`;
+        messages.appendChild(li);
+      }
+    });
+
+    // Lắng nghe sự kiện 'chat message' từ server
+    socket.on('chat message', (data) => {
+      const messages = document.getElementById('messages');
+      const li = document.createElement('li');
+      li.textContent = `${data.name}: ${data.message}`;
+      messages.appendChild(li);
+    });
+
+    // Gửi thông tin người dùng và tin nhắn khi biểu mẫu được submit
+    document.getElementById('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('name');
+      const messageInput = document.getElementById('m');
+
+      const name = nameInput.value;
+      const message = messageInput.value;
+
+      // Kiểm tra nếu có tên và tin nhắn, gửi thông tin người dùng và tin nhắn tới server
+      if (name && message) {
+        socket.emit('user info', { name, joined: true });
+        socket.emit('chat message', { name, message });
+
+        // Reset giá trị của ô nhập tin nhắn
+        messageInput.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
