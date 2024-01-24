@@ -1,14 +1,13 @@
 // Import các thư viện và modules cần thiết
-const express = require('express');  // Thư er
+const express = require('express');  // Thư viện
 const socketIo = require('socket.io'); // Thư viện Socket.IO cho giao viện Express cho web server
 const http = require('http');         // Module HTTP để tạo servtiếp real-time
-const socket = io('54.179.161.138:3000');
 
 // Khởi tạo ứng dụng Express, server HTTP và Socket.IO
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-
+const socket = io('54.179.161.138:3000');
 // Định nghĩa route cho đường dẫn chính
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
